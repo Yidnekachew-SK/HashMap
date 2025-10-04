@@ -1,38 +1,38 @@
-const HahMap = function () {
+const HashMap = function () {
 	const loadFactor = 0.75;
 	let capacity = 16;
 	let size = 0;
-	let bucketstorage = new Array(capacity);
+	let bucketStorage = new Array(capacity).fill(null).map(() => []);
 
 	const hash = function (key) {
 		let hashCode = 0;
 		const primeNumber = 31;
 
 		for (let i = 0; i < key.length; i++) {
-			hashCode += primeNumber * hashCode + charCodeAt(i);
+			hashCode += primeNumber * hashCode + key.charCodeAt(i);
 		}
 
-		return hashCode % 16;
+		return (hashCode % capacity);
 	}
 
 	const set = function (key, value) {
 		let index = hash(key);
-		let bucket = bucketstorage[index];
+		let bucket = bucketStorage[index];
 
-		bucket.forEach((existingKey, existingValue) => {
-			if (existingKey === key) {
-				existingKey = key;
-				return;
-			}
-		})
+		for (let pair of bucket) {
+      		if (pair[0] === key) {
+        		pair[1] = value;
+        		return "Value updated";
+      		}
+    	}
 
 		bucket.push([key, value]);
 		size++;
 
 		if (size > (capacity * loadFactor)) {
 			capacity *= 2;
-			let oldBucketStorage = bucketstorage;
-			bucketstorage = new Array(capacity);
+			let oldBucketStorage = bucketStorage;
+			bucketStorage = new Array(capacity).fill(null).map(() => []);
 			size = 0;
 
 			oldBucketStorage.forEach(oldBucket => {
@@ -45,44 +45,41 @@ const HahMap = function () {
 
 	const get = function (key) {
 		let index = hash(key);
-		let bucket = bucketstorage[index];
+		let bucket = bucketStorage[index];
 
-		bucket.forEach((existingKey, existingValue) => {
-			if (existingKey === key) {
-				return existingValue;
-			}
-		})
+		for (let [existingKey, existingValue] of bucket) {
+      		if (existingKey === key) return existingValue;
+   		}
 
 		return null;
 	}
 
 	const has = function (key) {
 		let index = hash(key);
-		let bucket = bucketstorage[index];
+		let bucket = bucketStorage[index];
 
-		bucket.forEach((existingKey, existingValue) => {
-			if (existingKey === key) {
-				return true;
-			}
-		})
+		for (let [existingKey, existingValue] of bucket) {
+      		if (existingKey === key) return true;
+   		}
 
 		return false;
 	}
 
 	const remove = function (key) {
 		let index = hash(key);
-		let bucket = bucketstorage[index];
+		let bucket = bucketStorage[index];
+		let isRemoved = false;
 
-		bucket.forEach((existingKey, existingValue) =>{
-			if (existingKey === key) {
-				bucket.splice(index, 1);
-				size--;
+		for (let i = 0; i < bucket.length; i++) {
+  			if (bucket[i][0] === key) {
+    			bucket.splice(i, 1);
+    			size--;
 
-				return true;
-			}
-
-			return false;
-		})
+    			return true;
+  			}
+		}
+		
+		return false;
 	}
 
 	const length = function () {
@@ -90,14 +87,16 @@ const HahMap = function () {
 	}
 
 	const clear = function () {
-		bucketstorage = new Array(16);
+		bucketStorage = new Array(16).fill(null).map(() => []);
 		size = 0;
+
+		return "Hash map cleared";
 	}
 
 	const keys = function () {
 		let storedKeys = [];
 
-		bucketstorage.forEach(bucket => {
+		bucketStorage.forEach(bucket => {
 			bucket.forEach(([key, value]) => {
 				storedKeys.push(key);
 			})
@@ -109,7 +108,7 @@ const HahMap = function () {
 	const values = function () {
 		let storedValues = [];
 
-		bucketstorage.forEach(bucket => {
+		bucketStorage.forEach(bucket => {
 			bucket.forEach(([key, value]) => {
 				storedValues.push(value);
 			})
@@ -121,7 +120,7 @@ const HahMap = function () {
 	const entries = function () {
 		let storedEntries = [];
 
-		bucketstorage.forEach(bucket => {
+		bucketStorage.forEach(bucket => {
 			bucket.forEach(([key, value]) => {
 				storedEntries.push([key, value]);
 			})
@@ -130,7 +129,7 @@ const HahMap = function () {
 		return storedEntries;
 	}
 
-	return { set, get, has, remove, length, clear, keys, values, entries}
+	return { set, get, has, remove, length, clear, keys, values, entries };
 }
 
 export { HashMap };
