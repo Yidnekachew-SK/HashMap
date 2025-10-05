@@ -41,6 +41,7 @@ const HashMap = function () {
 				})
 			})
 		}
+		return "Key-Value pair added";
 	}
 
 	const get = function (key) {
@@ -68,7 +69,6 @@ const HashMap = function () {
 	const remove = function (key) {
 		let index = hash(key);
 		let bucket = bucketStorage[index];
-		let isRemoved = false;
 
 		for (let i = 0; i < bucket.length; i++) {
   			if (bucket[i][0] === key) {
@@ -78,7 +78,7 @@ const HashMap = function () {
     			return true;
   			}
 		}
-		
+
 		return false;
 	}
 
